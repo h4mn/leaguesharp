@@ -25,7 +25,7 @@ namespace LeBlanc
             R = new Spell(SpellSlot.R);
 
             var ignite = ObjectManager.Player.Spellbook.GetSpell(ObjectManager.Player.GetSpellSlot("summonerdot"));
-            
+
             if (ignite.Slot != SpellSlot.Unknown)
             {
                 Ignite = new Spell(ignite.Slot, 600);

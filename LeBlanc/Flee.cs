@@ -116,7 +116,7 @@ namespace LeBlanc
         private static bool CastE(HitChance hc)
         {
             var target = Utils.GetTarget(E.Range);
-            
+
             if (Player.IsDashing() || !CanCast("E") || !E.IsReady() || !target.IsValidTarget(E.Range))
             {
                 return false;

@@ -18,16 +18,15 @@ namespace LeBlanc
         public static Color Color = Color.Lime;
         public static Color FillColor = Color.Goldenrod;
         public static bool Fill = true;
+        private static DamageToUnitDelegate _damageToUnit;
+
+        private static readonly Render.Text Text = new Render.Text(
+            0, 0, "", 11, new ColorBGRA(255, 0, 0, 255), "monospace");
 
         public static bool Enabled
         {
             get { return Program.Menu.Item("DamageIndicator").GetValue<bool>(); }
         }
-
-        private static DamageToUnitDelegate _damageToUnit;
-
-        private static readonly Render.Text Text = new Render.Text(
-            0, 0, "", 11, new ColorBGRA(255, 0, 0, 255), "monospace");
 
         public static DamageToUnitDelegate DamageToUnit
         {
@@ -62,9 +61,9 @@ namespace LeBlanc
 
                 if (damage > unit.Health)
                 {
-                    Text.X = (int)barPos.X + XOffset;
-                    Text.Y = (int)barPos.Y + YOffset - 13;
-                    Text.text = ((int)(unit.Health - damage)).ToString();
+                    Text.X = (int) barPos.X + XOffset;
+                    Text.Y = (int) barPos.Y + YOffset - 13;
+                    Text.text = ((int) (unit.Health - damage)).ToString();
                     Text.OnEndScene();
                 }
 

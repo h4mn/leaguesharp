@@ -77,8 +77,6 @@ namespace LeBlanc
             draw.AddItem(new MenuItem("Draw1", "Draw W Range").SetValue(new Circle(false, Color.Red, W.Range)));
             draw.AddItem(new MenuItem("Draw2", "Draw E Range").SetValue(new Circle(true, Color.Purple, E.Range)));
             draw.AddBool("DrawCD", "Draw on CD");
-            draw.AddItem(
-                new MenuItem("DrawWCombo", "Draw GapCloser Combo").SetValue(new Circle(true, Color.Orange, W.Range * 2)));
             draw.AddBool("DamageIndicator", "Damage Indicator");
 
             var misc = Menu.AddMenu("Misc Settings", "Misc");
@@ -107,7 +105,8 @@ namespace LeBlanc
                 "<b><font color =\"#FFFFFF\">LeBlanc the Schemer by </font><font color=\"#0033CC\">Trees</font><font color =\"#FFFFFF\"> loaded!</font></b>");
 
             Drawing.OnDraw += Drawing_OnDraw;
-            Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
+            Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
+            //Interrupter2_OnInterruptableTarget;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
         }
 
@@ -127,7 +126,7 @@ namespace LeBlanc
             E.CastIfHitchanceEquals(unit, HitChance.Medium);
 
             Utility.DelayAction.Add(
-                (int) E.Delay * 1000 + Game.Ping / 2 + 50, () =>
+                (int) E.Delay * 1000 + (Game.Ping * 1000) / 2 + 50, () =>
                 {
                     if (R.IsReady(SpellSlot.E))
                     {
@@ -136,24 +135,23 @@ namespace LeBlanc
                 });
         }
 
-        private static void Interrupter_OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        private static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender,
+            Interrupter2.InterruptableTargetEventArgs args)
         {
-            var hero = unit as Obj_AI_Hero;
-
-            if (!Menu.Item("Interrupt").GetValue<bool>() || !hero.IsValidTarget(E.Range) ||
-                spell.DangerLevel < InterruptableDangerLevel.High || !E.IsReady())
+            if (!Menu.Item("Interrupt").GetValue<bool>() || !sender.IsValidTarget(E.Range) ||
+                args.DangerLevel < Interrupter2.DangerLevel.High || !E.IsReady())
             {
                 return;
             }
 
-            E.CastIfHitchanceEquals(hero, HitChance.Medium);
+            E.CastIfHitchanceEquals(sender, HitChance.Medium);
 
             Utility.DelayAction.Add(
-                (int) E.Delay * 1000 + Game.Ping / 2 + 50, () =>
+                (int) E.Delay * 1000 + (Game.Ping * 1000) / 2 + 50, () =>
                 {
                     if (R.IsReady(SpellSlot.E))
                     {
-                        R.CastIfHitchanceEquals(SpellSlot.E, hero, HitChance.Medium);
+                        R.CastIfHitchanceEquals(SpellSlot.E, sender, HitChance.Medium);
                     }
                 });
         }
@@ -169,15 +167,6 @@ namespace LeBlanc
             if (wBackCircle != null && wBackCircle.Position != Vector3.Zero)
             {
                 Render.Circle.DrawCircle(Combo.WBackPosition.Position, 200, Color.Red, 8);
-            }
-
-            var wCircle = Menu.Item("DrawWCombo").GetValue<Circle>();
-            var dfgReady = (Items.DFG.HasItem() && Items.DFG.IsReady()) || (Items.BFT.HasItem() && Items.BFT.IsReady());
-            var canDraw = wCircle.Active && W.IsReady(1) && R.IsReady() && dfgReady;
-
-            if (canDraw)
-            {
-                Render.Circle.DrawCircle(Player.Position, wCircle.Radius, wCircle.Color);
             }
 
             foreach (var spell in
@@ -255,16 +244,6 @@ namespace LeBlanc
             if (W.IsReady())
             {
                 damage += Player.GetSpellDamage(enemy, SpellSlot.W);
-            }
-
-            if (Items.DFG.IsReady())
-            {
-                damage += .2f * damage + Player.GetItemDamage(enemy, Damage.DamageItems.Dfg);
-            }
-
-            if (Items.BFT.IsReady())
-            {
-                damage += .2f * damage + Player.GetItemDamage(enemy, Damage.DamageItems.BlackFireTorch);
             }
 
             if (Items.FQC.IsReady())

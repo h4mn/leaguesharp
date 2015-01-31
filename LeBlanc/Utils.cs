@@ -4,8 +4,8 @@ using System.Linq;
 using System.Media;
 using LeagueSharp;
 using LeagueSharp.Common;
+using LeagueSharp.Common.Data;
 using SharpDX;
-using ItemData = LeagueSharp.Common.Data.ItemData;
 
 namespace LeBlanc
 {
@@ -161,13 +161,16 @@ namespace LeBlanc
 
         public static HitChance GetHitChance(this MenuItem item)
         {
-            return (HitChance)item.GetValue<StringList>().SelectedIndex + 3;
+            return (HitChance) item.GetValue<StringList>().SelectedIndex + 3;
         }
 
         public static Obj_AI_Hero GetTarget(float range)
         {
             var target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
-            return target.IsValidTarget(range) && !TargetSelector.IsInvulnerable(target, TargetSelector.DamageType.Magical, false) ? target : null;
+            return target.IsValidTarget(range) &&
+                   !TargetSelector.IsInvulnerable(target, TargetSelector.DamageType.Magical, false)
+                ? target
+                : null;
         }
 
         public static void Troll()

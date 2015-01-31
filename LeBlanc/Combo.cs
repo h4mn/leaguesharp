@@ -19,11 +19,6 @@ namespace LeBlanc
 
             var combo = new Menu(Name + " Settings", Name);
 
-            var gapclose = combo.AddMenu("GapClose", "Gap Close Combo");
-            gapclose.AddBool("GapCloseEnabled", "Use GapClose Combo");
-            gapclose.AddSlider("TargetHP", "On Target HP < %", 40);
-            gapclose.AddSlider("PlayerHP", "On Self HP < %", 40);
-
             var comboQ = combo.AddMenu("Q", "Q");
             comboQ.AddBool("ComboQ", "Use Q");
 
@@ -57,7 +52,6 @@ namespace LeBlanc
 
             LocalMenu = combo;
 
-            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             GameObject.OnCreate += GameObject_OnCreate;
             GameObject.OnDelete += GameObject_OnDelete;
             Game.OnGameUpdate += Game_OnGameUpdate;
@@ -110,7 +104,6 @@ namespace LeBlanc
 
         private static void ComboLogic()
         {
-            var spellsUp = Q.IsReady() && W.IsReady() && E.IsReady() && R.IsReady();
             var d = Player.Distance(CurrentTarget);
             var eFirst = Menu.Item("ComboEStart").GetValue<bool>();
             var castRE = R.IsReady(SpellSlot.E) && GetMenuUlt() == SpellSlot.E;
@@ -120,16 +113,6 @@ namespace LeBlanc
 
             if (CanCast("Items"))
             {
-                if (spellsUp && d < Items.DFG.Range && Items.DFG.Cast(CurrentTarget))
-                {
-                    return;
-                }
-
-                if (spellsUp && d < Items.BFT.Range && Items.BFT.Cast(CurrentTarget))
-                {
-                    return;
-                }
-
                 if (d < Items.BOTRK.Range && Items.BOTRK.Cast(CurrentTarget))
                 {
                     return;
@@ -263,26 +246,6 @@ namespace LeBlanc
             if (CurrentTarget.IsValidTarget(GetComboRange()))
             {
                 ComboLogic();
-                return;
-            }
-
-            CurrentTarget = Utils.GetTarget(W.Range * 2);
-            if (Menu.Item("GapCloseEnabled").GetValue<bool>() && CurrentTarget.IsValidTarget(W.Range * 2))
-            {
-                var canCast = CanCast("W") && W.IsReady(1) && R.IsReady();
-                var isTargetLow = CurrentTarget.HealthPercentage() <= Menu.Item("TargetHP").GetValue<Slider>().Value;
-                var isPlayerLow = Player.HealthPercentage() < Menu.Item("PlayerHP").GetValue<Slider>().Value;
-                var canDFG = (Items.DFG.HasItem() && Items.DFG.IsReady()) ||
-                             (Items.BFT.HasItem() && Items.BFT.IsReady());
-
-                if (!canCast || !isTargetLow || isPlayerLow || !canDFG)
-                {
-                    //Console.WriteLine("return");
-                    return;
-                }
-
-                var pos = Player.Position.Extend(CurrentTarget.ServerPosition, W.Range + 100);
-                if (W.Cast(pos)) {}
             }
         }
 
@@ -323,59 +286,6 @@ namespace LeBlanc
             }
 
             if (R.IsReady(SpellSlot.W) && R.Cast(SpellSlot.W, target).IsCasted()) {}
-        }
-
-        private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
-        {
-            var unit = sender as Obj_AI_Hero;
-
-            if (unit == null || !unit.IsValid || !unit.IsMe || !Enabled)
-            {
-                return;
-            }
-
-            if (args.SData.IsAutoAttack())
-            {
-                return;
-            }
-
-            var name = args.SData.Name;
-
-
-            if (name.Equals("LeblancSlide"))
-            {
-                Utility.DelayAction.Add(
-                    400, () =>
-                    {
-                        var castDFG = CanCast("Items") && Items.DFG.HasItem() && Items.DFG.IsReady();
-                        var castBFT = CanCast("Items") && Items.BFT.HasItem() && Items.BFT.IsReady();
-
-                        if (castDFG && Items.DFG.Cast(CurrentTarget))
-                        {
-                            return;
-                        }
-
-                        if (castBFT && Items.BFT.Cast(CurrentTarget)) {}
-                    });
-                return;
-            }
-
-
-            Utility.DelayAction.Add(
-                400, () =>
-                {
-                    var canCastR = (name.Equals("DeathfireGrasp") || name.Equals("ItemBlackfireTorch")) &&
-                                   CurrentTarget.IsValidTarget(W.Range) && R.IsReady(SpellSlot.W);
-
-                    if (!canCastR)
-                    {
-                        Console.WriteLine(Player.Distance(CurrentTarget));
-                        Console.WriteLine("can't r");
-                        return;
-                    }
-
-                    R.Cast(SpellSlot.R, CurrentTarget);
-                });
         }
 
         private static SpellSlot GetMenuUlt()
