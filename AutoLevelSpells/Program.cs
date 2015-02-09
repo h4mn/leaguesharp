@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Collections.Generic;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -35,7 +36,7 @@ namespace AutoLevelSpells
             AutoLevel.Enabled(e.GetNewValue<bool>());
         }
 
-        private static int[] GetSequence()
+        private static IEnumerable<int> GetSequence()
         {
             var sequence = new int[18];
             switch (ObjectManager.Player.ChampionName)
@@ -65,7 +66,7 @@ namespace AutoLevelSpells
                     sequence = new[] { 2, 3, 2, 1, 2, 4, 2, 1, 2, 1, 4, 1, 1, 3, 3, 4, 3, 3 };
                     break;
                 case "Azir":
-                    sequence = new[] { 2, 1, 3, 1, 1, 4, 1, 2, 1, 3, 4, 3, 3, 2, 2, 4, 2, 2 };
+                    sequence = new[] { 2, 1, 3, 1, 1, 4, 1, 3, 1, 3, 4, 3, 3, 2, 2, 4, 2, 2 };
                     break;
                 case "Blitzcrank":
                     sequence = new[] { 1, 3, 2, 3, 2, 4, 3, 2, 3, 2, 4, 3, 2, 1, 1, 4, 1, 1 };
@@ -159,6 +160,9 @@ namespace AutoLevelSpells
                     break;
                 case "Jinx":
                     sequence = new[] { 1, 3, 2, 1, 1, 4, 1, 2, 1, 2, 4, 2, 2, 3, 3, 4, 3, 3 };
+                    break;
+                case "Kalista":
+                    sequence = new[] { 3, 2, 1, 3, 3, 4, 3, 3, 2, 2, 4, 2, 2, 1, 1, 4, 1, 1 };
                     break;
                 case "Karma":
                     sequence = new[] { 1, 3, 1, 2, 3, 1, 3, 1, 3, 1, 3, 1, 3, 2, 2, 2, 2, 2 };
