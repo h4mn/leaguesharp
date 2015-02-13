@@ -63,9 +63,9 @@ namespace TreeSharp.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
         /// </summary>
-        internal static System.IO.UnmanagedMemoryStream OnWard {
+        internal static System.IO.UnmanagedMemoryStream Load {
             get {
-                return ResourceManager.GetStream("OnWard", resourceCulture);
+                return ResourceManager.GetStream("Load", resourceCulture);
             }
         }
     }

@@ -1,13 +1,9 @@
 ﻿#region
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Media;
-using LeagueSharp;
 using LeagueSharp.Common;
-using SharpDX;
 using TreeSharp.Properties;
 
 #endregion
@@ -16,9 +12,7 @@ namespace TreeSharp
 {
     internal class Program
     {
-        public static List<Obj_AI_Base> WardList = new List<Obj_AI_Base>();
-        public static Render.Text WardText;
-        public static SoundObject OnWardSound;
+        public static Menu Menu;
 
         private static void Main(string[] args)
         {
@@ -27,42 +21,21 @@ namespace TreeSharp
 
         private static void Game_OnGameLoad(EventArgs args)
         {
-            WardText = new Render.Text(
-                "Ward Count: 0/3", Drawing.Width / 2 + 500, Drawing.Height - 50, 22, Color.Yellow);
-            WardText.Add();
+            Menu = new Menu("TreeSharp", "TreeSharp", true);
 
-            OnWardSound = new SoundObject(Resources.OnWard);
-            Game.OnGameUpdate += Game_OnGameUpdate;
-            GameObject.OnCreate += GameObject_OnCreate;
-            //Game.OnGameNotifyEvent += Game_OnGameNotifyEvent;
-        }
+            var alerts = Menu.AddMenu("Alert", "Alert Settings");
+            alerts.AddBool("Trinket", "Alert No Trinket");
 
-        private static void GameObject_OnCreate(GameObject sender, EventArgs args)
-        {
-            var unit = sender as Obj_AI_Minion;
+            var misc = Menu.AddMenu("Misc", "Misc Settings");
+            var sounds = misc.AddMenu("Sound", "Sound Settings");
+            sounds.AddBool("Load", "Play Load Sound");
 
-            if (unit == null || !unit.IsValid)
+            Menu.AddToMainMenu();
+
+            if (sounds.Item("Load").IsActive())
             {
-                return;
+                new SoundObject(Resources.Load).Play();
             }
-
-            if (unit.Name == "VisionWard" && unit.BaseSkinName == "sightward")
-            {
-                WardList.Add(unit);
-            }
-
-            if (unit.Name.ToLower().Contains("ward") && sender.IsAlly &&
-                ObjectManager.Player.Distance(sender.Position) < 500)
-            {
-                OnWardSound.Play();
-            }
-        }
-
-        private static void Game_OnGameUpdate(EventArgs args)
-        {
-            var wardCount = WardList.Count(w => w.IsValid && !w.IsDead && w.Health > 0 && w.IsVisible);
-            WardText.text = "Ward Count: " + wardCount + "/3";
-            WardText.Color = wardCount == 3 ? Color.Red : Color.Yellow;
         }
     }
 
@@ -80,12 +53,7 @@ namespace TreeSharp
 
         public void Play()
         {
-            if (Environment.TickCount - LastPlayed < 1500)
-            {
-                return;
-            }
             _sound.Play();
-            LastPlayed = Environment.TickCount;
         }
     }
 }
